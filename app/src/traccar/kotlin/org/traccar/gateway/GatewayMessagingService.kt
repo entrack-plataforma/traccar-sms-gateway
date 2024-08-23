@@ -12,6 +12,7 @@ import android.os.Looper
 import android.telephony.SmsManager
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
@@ -54,6 +55,12 @@ class GatewayMessagingService : FirebaseMessagingService() {
 
     override fun onCreate() {
         super.onCreate()
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Firestore().saveToken(task.result)
+            }
+        }
 
         // Register BroadcastReceiver for SENT_ACTION
         ContextCompat.registerReceiver(this, object : BroadcastReceiver() {

@@ -75,7 +75,7 @@ android {
         register("prepaid")
         register("traccar") {
             isDefault = true
-            applicationId = "com.fleetmap.gateway"
+            applicationId = "com.rastreosat.gateway"
             versionCode = 16
             versionName = "6.3"
         }
@@ -117,8 +117,6 @@ dependencies {
     implementation(libs.bundles.room)
     ksp(libs.androidx.room.compiler)
 
-    "traccarImplementation"(libs.javax.servlet)
-    "traccarImplementation"(libs.jetty.server)
     "traccarImplementation"(platform(libs.firebase.bom))
     "traccarImplementation"(libs.firebase.analytics)
     "traccarImplementation"(libs.firebase.crashlytics)

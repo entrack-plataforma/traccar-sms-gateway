@@ -8,16 +8,11 @@
 
     <queries tools:node="remove" />
 
-    <application>
+    <application android:icon="@mipmap/ic_launcher">
 
         <activity
             android:name="org.traccar.gateway.GatewayActivity"
             android:exported="false" />
-
-        <service
-            android:name="org.traccar.gateway.GatewayService"
-            android:foregroundServiceType="remoteMessaging"
-            />
 
         <service
             android:name="org.traccar.gateway.GatewayMessagingService"
