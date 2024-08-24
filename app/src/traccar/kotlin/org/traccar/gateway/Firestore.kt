@@ -3,6 +3,7 @@ package org.traccar.gateway
 import android.os.Build
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import java.util.Date
 
 class Firestore {
@@ -10,16 +11,32 @@ class Firestore {
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val TAG = "Firestore"
 
-    fun log(phone: String, messageId: String?, state: String, message: String? = null) {
+    fun updateState(phone: String, messageId: String?, state: String, message: String? = null) {
+        log()
         if (message != null) {
-            db.document("phones/" + getDeviceUniqueId() + "/messages/" + messageId).set(hashMapOf(
+            db.document("phones/" + getDeviceUniqueId())
+                .set(hashMapOf(
+                    "last-online" to System.currentTimeMillis(),
+                    "last-message" to message
+                ), SetOptions.merge())
+                .addOnFailureListener { e ->
+                    // Failed to add the log entry
+                    Log.e(TAG,"Error seting log entry: ${e.message}")
+                }
+            db.document("messages/$messageId").set(hashMapOf(
                 "message" to message,
                 "timestamp" to System.currentTimeMillis(),
                 "datetime" to Date().toString(),
-                "phone" to phone
-            ))
+                "phone" to phone,
+                "sender" to getDeviceUniqueId()
+            ), SetOptions.merge())
         } else {
-            db.collection("phones/" + getDeviceUniqueId() + "/messages/" + messageId + "/states")
+            db.document("messages/$messageId").set(hashMapOf(
+                "last-update" to System.currentTimeMillis(),
+                "state" to state
+            ), SetOptions.merge())
+            .addOnFailureListener { e -> Log.e(TAG,"Error setting messages/$messageId: ${e.message}") }
+            db.collection("messages/$messageId/states")
                 .add(hashMapOf(
                     "state" to state,
                     "timestamp" to System.currentTimeMillis(),
@@ -39,7 +56,19 @@ class Firestore {
         ).joinToString(separator = "-")
     }
 
+    fun log() {
+        db.document("phones/" + getDeviceUniqueId())
+            .set(hashMapOf(
+                "last-online" to System.currentTimeMillis(),
+            ), SetOptions.merge())
+            .addOnFailureListener { e ->
+                // Failed to add the log entry
+                Log.e(TAG,"Error seting log entry: ${e.message}")
+            }
+    }
+
     fun saveToken(token: String) {
+        log()
         db.document("phones/" + getDeviceUniqueId())
             .set(hashMapOf(
                 "last-install" to Date().toString(),

@@ -44,7 +44,7 @@ class GatewayMessagingService : FirebaseMessagingService() {
                     PendingIntent.getBroadcast(this, System.currentTimeMillis().toInt(), sentIntent, PendingIntent.FLAG_IMMUTABLE),
                     PendingIntent.getBroadcast(this, System.currentTimeMillis().toInt(), deliveryIntent, PendingIntent.FLAG_IMMUTABLE)
                 )
-                Firestore().log(phone, messageId, "SMS Sending", message)
+                Firestore().updateState(phone, messageId, "SMS Sending", message)
             } catch (e: Exception) {
                 handler.post {
                     Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
@@ -55,7 +55,7 @@ class GatewayMessagingService : FirebaseMessagingService() {
 
     override fun onCreate() {
         super.onCreate()
-
+        Firestore().log()
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 Firestore().saveToken(task.result)
@@ -93,18 +93,18 @@ class GatewayMessagingService : FirebaseMessagingService() {
     }
 
     private fun onSmsSent(phone: String, messageId: String?) {
-        Firestore().log(phone, messageId, "SMS Sent")
+        Firestore().updateState(phone, messageId, "SMS Sent")
     }
 
     private fun onSmsFailed(phone: String, messageId: String?) {
-        Firestore().log(phone, messageId, "SMS Failed")
+        Firestore().updateState(phone, messageId, "SMS Failed")
     }
 
     private fun onSmsDelivered(phone: String, messageId: String?) {
-        Firestore().log(phone, messageId, "SMS Delivered")
+        Firestore().updateState(phone, messageId, "SMS Delivered")
     }
 
     private fun onSmsDeliveryFailed(phone: String, messageId: String?) {
-        Firestore().log(phone, messageId, "SMS Delivery Failed")
+        Firestore().updateState(phone, messageId, "SMS Delivery Failed")
     }
 }
